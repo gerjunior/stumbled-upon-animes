@@ -1,4 +1,3 @@
-import { useAnimes } from "./useAnime.ts";
 import { AnimeCard } from "./components/AnimeCard.tsx";
 import { BanList } from "./components/BanList.tsx";
 import { useState } from "react";
@@ -14,14 +13,12 @@ export const Main = () => {
     setBanList([...banList, attribute]);
   }
 
-  const { data } = useAnimes()
-
   return (
     <div className="w-screen h-screen mt-10 flex flex-col items-center">
       <h1 className="text-5xl font-bold">Stumbled Upon: Animes</h1>
       <p className="text-2xl mt-5">Discover animes from your wildest dreams!</p>
       <div className="mt-10 w-full h-full">
-        <AnimeCard anime={ data[5] } banList={banList} handleClickAttribute={handleAddToBanList}/>
+        <AnimeCard banList={banList} handleClickAttribute={handleAddToBanList}/>
         <BanList banList={banList} handleClickItem={handleRemoveFromBanList} />
       </div>
     </div>

@@ -26,16 +26,11 @@ const mapAnimesOutput = ({ data, pagination }: Awaited<ReturnType<typeof animeCl
   }
 }
 
-export type Anime = ReturnType<typeof mapAnimesOutput>['data'][0];
-
 export const useAnimes = () => {
   const [getAnimesOutput, setAnimesOutput] = useState<null | ReturnType<typeof mapAnimesOutput>>(null);
+  const [currentAnimeIndex, setCurrentAnimeIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
-
-  const fetchNextPage = () => {
-    setPage(page + 1);
-  }
 
   useEffect(() => {
     const getAnimes = async () => {
@@ -50,16 +45,32 @@ export const useAnimes = () => {
 
       const mappedRes = mapAnimesOutput(res);
       setAnimesOutput(mappedRes)
+      setCurrentAnimeIndex(0)
       setIsLoading(false)
     }
 
     void getAnimes()
   }, [page]);
 
+  const changeAnime = () => {
+    if (!getAnimesOutput) {
+      return null;
+    }
+
+    const nextAnime = getAnimesOutput.data[currentAnimeIndex + 1];
+
+    if (nextAnime) {
+      setCurrentAnimeIndex(currentAnimeIndex + 1)
+    }
+
+    if (!nextAnime) {
+      setPage(page + 1)
+    }
+  }
+
   return {
-    data: getAnimesOutput?.data ?? [],
-    pagination: getAnimesOutput?.pagination ?? { has_next_page: false },
+    data: getAnimesOutput?.data[currentAnimeIndex],
     isLoading,
-    fetchNextPage,
+    changeAnime,
   }
 }

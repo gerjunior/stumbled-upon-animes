@@ -1,15 +1,16 @@
 import { Button } from "../../../components/Button.tsx";
-import { Anime } from "../useAnime.ts";
+import { useAnimes } from "../useAnime.ts";
 
 type AnimeCardProps = {
-  anime: Anime;
   handleClickAttribute: (attribute: string) => void;
   banList: string[];
 }
 
-export const AnimeCard = ({ anime, handleClickAttribute, banList }: AnimeCardProps) => {
-  if (!anime) {
-    return <div className="">Loading...</div>
+export const AnimeCard = ({ handleClickAttribute, banList }: AnimeCardProps) => {
+  const { changeAnime, data: anime, isLoading } = useAnimes()
+
+  if (isLoading || !anime) {
+    return <div className="w-full flex flex-row justify-center">Loading...</div>
   }
 
   const filteredAttributes = anime.attributes.filter((attribute) => !banList.includes(attribute))
@@ -20,14 +21,16 @@ export const AnimeCard = ({ anime, handleClickAttribute, banList }: AnimeCardPro
       <p className="text-4xl py-3 px-2 font-bold">{ anime.title }</p>
       <img className="w-64" src={ anime.imageUrl } alt={ anime.title }/>
       <div className="flex flex-row flex-wrap w-full justify-center">
-        { filteredAttributes.map((attribute) => {
+        { filteredAttributes.map((attribute, idx) => {
           return (
-            <Button text={ attribute } onClick={handleClickAttribute}/>
+            <Button key={ idx } text={ attribute } onClick={ handleClickAttribute }/>
           )
         }) }
       </div>
       <div className="w-auto">
-        <button className="bg-[#EEEEEE] text-[#393E46] text-white w-auto h-auto rounded-md shadow shadow-white">🔁
+        <button
+          onClick={ changeAnime }
+          className="bg-[#EEEEEE] text-[#393E46] text-white w-auto h-auto rounded-md shadow shadow-white">🔁
           Discover
         </button>
       </div>
