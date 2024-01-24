@@ -1,10 +1,13 @@
 type ButtonProps = {
-  text: string
+  text: string;
+  onClick: (attribute: string) => void;
 }
 
-export const Button = ({ text }: ButtonProps) => {
+export const Button = ({ text, onClick }: ButtonProps) => {
   return (
-    <button className="bg-[#00ADB5] text-white font-bold text-sm rounded mx-1 my-1">
+    <button
+      onClick={() => onClick(text)}
+      className="bg-[#00ADB5] text-white font-bold text-sm rounded mx-1 my-1">
       { text }
     </button>
   )
