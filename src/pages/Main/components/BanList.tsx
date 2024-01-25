@@ -11,8 +11,9 @@ export const BanList = ({ banList, handleClickItem }: BanListProps) => {
       <div className="flex flex-col items-center">
         { banList.map((attribute, idx) => {
           return (
-            <div key={idx} className="flex flex-row justify-between">
-              <button className="text-xl mt-5" onClick={() => handleClickItem(attribute)}>{ attribute }</button>
+            <div key={ idx } className="flex flex-row justify-between">
+              <button className="text-xl mt-5 bg-red-400"
+                      onClick={ () => handleClickItem(attribute) }>{ attribute }</button>
             </div>
           )
         }) }

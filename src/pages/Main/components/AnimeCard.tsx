@@ -30,7 +30,7 @@ export const AnimeCard = ({ handleClickAttribute, banList }: AnimeCardProps) => 
         <button
           onClick={ handleClickDiscover }
           disabled={ isLoading }
-          className="bg-[#EEEEEE] text-[#393E46] text-white w-auto h-auto rounded-md shadow shadow-white">🔁
+          className="bg-[#EEEEEE] text-[#393E46] text-black w-auto h-auto rounded-md shadow shadow-white">🔁
           Discover
         </button>
       </div>
