@@ -1,4 +1,4 @@
-import { AnimeClient, Anime as AnimeFromLib } from '@tutkli/jikan-ts'
+import { Anime as AnimeFromLib, AnimeClient } from '@tutkli/jikan-ts'
 import { useEffect, useState } from "react";
 
 const animeClient = new AnimeClient({
@@ -8,9 +8,12 @@ const animeClient = new AnimeClient({
   enableLogging: true,
 })
 
-const mapAnimesOutput = ({ data, pagination }: Awaited<ReturnType<typeof animeClient.getAnimeSearch>>) => {
-  return {
-    data: data.map((anime: AnimeFromLib) => ({
+const getAnimeSearch = async (page: number) => {
+  const { data } = await animeClient.getAnimeSearch({
+    sfw: true, unapproved: false, type: 'tv', limit: 25, page,
+  })
+
+  return data.map((anime: AnimeFromLib) => ({
       id: anime.mal_id,
       title: anime.title,
       imageUrl: anime.images.jpg.image_url,
@@ -19,57 +22,70 @@ const mapAnimesOutput = ({ data, pagination }: Awaited<ReturnType<typeof animeCl
         ...anime.studios.map(studio => studio.name),
         ...anime.demographics.map(demographic => demographic.name),
       ],
-    })),
-    pagination: {
-      has_next_page: pagination?.has_next_page ?? false,
-    },
-  }
+    }),
+  )
 }
 
+type MappedAnime = Awaited<ReturnType<typeof getAnimeSearch>>[0]
+
 export const useAnimes = () => {
-  const [getAnimesOutput, setAnimesOutput] = useState<null | ReturnType<typeof mapAnimesOutput>>(null);
-  const [currentAnimeIndex, setCurrentAnimeIndex] = useState(0);
+  const [animes, setAnimes] = useState<null | MappedAnime[]>(null);
+  const [currentAnime, setCurrentAnime] = useState<null | MappedAnime>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     const getAnimes = async () => {
       setIsLoading(true)
-      const res = await animeClient.getAnimeSearch({
-        sfw: true,
-        unapproved: false,
-        type: 'tv',
-        limit: 25,
-        page,
-      });
+      const animesResponse = await getAnimeSearch(1)
 
-      const mappedRes = mapAnimesOutput(res);
-      setAnimesOutput(mappedRes)
-      setCurrentAnimeIndex(0)
+      setAnimes(animesResponse)
+      setCurrentAnime(animesResponse[0])
       setIsLoading(false)
     }
 
     void getAnimes()
-  }, [page]);
+  }, []);
 
-  const changeAnime = () => {
-    if (!getAnimesOutput) {
+  const changeAnime = async (banList: string[]) => {
+    if (!animes) {
       return null;
     }
 
-    const nextAnime = getAnimesOutput.data[currentAnimeIndex + 1];
+    const animesWithoutCurrent = animes.filter(anime => anime.id !== currentAnime?.id);
+    setAnimes(animesWithoutCurrent)
+
+    const filteredAnimes = animesWithoutCurrent.filter(anime => anime.attributes.every(attribute => !banList.includes(attribute)))
+    const nextAnime = filteredAnimes.find(anime => !banList.includes(anime.id.toString()))
 
     if (nextAnime) {
-      setCurrentAnimeIndex(currentAnimeIndex + 1)
+      setCurrentAnime(nextAnime)
+      return;
     }
 
-    if (!nextAnime) {
-      setPage(page + 1)
+    setIsLoading(true)
+
+    let nextPage = page + 1;
+    while (true) {
+      const nextAnimePage = await getAnimeSearch(nextPage)
+      const nextAnimeFiltered = nextAnimePage.filter(anime => anime.attributes.every(attribute => !banList.includes(attribute)))
+
+      if (nextAnimeFiltered.length > 0) {
+        setAnimes([...animes, ...nextAnimeFiltered])
+        setCurrentAnime(nextAnimeFiltered[0])
+        setPage(nextPage)
+        break;
+      }
+
+      nextPage++;
+      await new Promise(resolve => setTimeout(resolve, 3000))
     }
+
+    setIsLoading(false)
   }
 
   return {
-    data: getAnimesOutput?.data[currentAnimeIndex],
+    data: currentAnime,
     isLoading,
     changeAnime,
   }

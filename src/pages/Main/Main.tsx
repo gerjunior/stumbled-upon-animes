@@ -10,7 +10,9 @@ export const Main = () => {
   }
 
   const handleAddToBanList = (attribute: string) => {
-    setBanList([...banList, attribute]);
+    if (!banList.includes(attribute)) {
+      setBanList([...banList, attribute]);
+    }
   }
 
   return (
