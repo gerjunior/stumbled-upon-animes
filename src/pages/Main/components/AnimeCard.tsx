@@ -1,19 +1,14 @@
 import { Button } from "../../../components/Button.tsx";
-import { useAnimes } from "../useAnime.ts";
+import { MappedAnime } from "../useAnime.ts";
 
 type AnimeCardProps = {
   handleClickAttribute: (attribute: string) => void;
-  banList: string[];
+  handleClickDiscover: () => void;
+  anime: MappedAnime | null;
+  isLoading: boolean
 }
 
-export const AnimeCard = ({ handleClickAttribute, banList }: AnimeCardProps) => {
-  const { changeAnime, data: anime, isLoading } = useAnimes()
-
-
-  const handleClickDiscover = () => {
-    void changeAnime(banList)
-  }
-
+export const AnimeCard = ({ handleClickAttribute, handleClickDiscover, anime, isLoading }: AnimeCardProps) => {
   return (
     <div className="mx-auto w-2/5 text-white shadow-[#EEEEEE] h-4/5 shadow-2xl bg-[#222831] rounded-lg
     items-center flex flex-col flex-wrap justify-evenly">

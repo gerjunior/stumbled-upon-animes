@@ -26,7 +26,7 @@ const getAnimeSearch = async (page: number) => {
   )
 }
 
-type MappedAnime = Awaited<ReturnType<typeof getAnimeSearch>>[0]
+export type MappedAnime = Awaited<ReturnType<typeof getAnimeSearch>>[0]
 
 export const useAnimes = () => {
   const [animes, setAnimes] = useState<null | MappedAnime[]>(null);
@@ -82,6 +82,7 @@ export const useAnimes = () => {
     }
 
     setIsLoading(false)
+
   }
 
   return {
