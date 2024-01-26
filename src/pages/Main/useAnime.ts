@@ -10,7 +10,7 @@ const animeClient = new AnimeClient({
 
 const getAnimeSearch = async (page: number) => {
   const { data } = await animeClient.getAnimeSearch({
-    sfw: true, unapproved: false, type: 'tv', limit: 25, page,
+    sfw: true, unapproved: false, type: 'tv', limit: 25, page, sort: 'asc', order_by: 'popularity'
   })
 
   return data.map((anime: AnimeFromLib) => ({
@@ -82,7 +82,6 @@ export const useAnimes = () => {
     }
 
     setIsLoading(false)
-
   }
 
   return {
